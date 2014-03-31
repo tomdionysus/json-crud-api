@@ -18,6 +18,10 @@ module JsonApi
       @repo.all(:id => id).count > 0
     end
 
+    def get_all
+      @repo.all
+    end
+
     def get(id)
       @repo.first(:id => id)
     end

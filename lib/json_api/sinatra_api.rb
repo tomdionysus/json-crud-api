@@ -18,12 +18,16 @@ module JsonApi
       # Session
       if settings.respond_to? :auth_client
         @session_id = env['HTTP_X_SESSION_ID']
-        @user = settings.auth_client.get(@session_id)
-
-        @logged_in = !@user.nil?
-        unless @user.nil?
-          settings.services.each do |k,service|
-            service.set_user @user if service.respond_to? :set_user
+        if @session_id.nil?
+          @user = nil
+          @logged_in = false
+        else
+          @user = settings.auth_client.get(@session_id)
+          @logged_in = !@user.nil?
+          unless @user.nil?
+            settings.services.each do |k,service|
+              service.set_user @user if service.respond_to? :set_user
+            end
           end
         end
       end
