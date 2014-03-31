@@ -1,0 +1,2 @@
+gem uninstall json_api
+gem build json_api.gemspec
