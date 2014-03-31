@@ -15,6 +15,19 @@ module JsonApi
       # JSON Errors
       @errors = []
 
+      # Session
+      if settings.respond_to? :auth_client
+        @session_id = env['HTTP_X_SESSION_ID']
+        @user = settings.auth_client.get(@session_id)
+
+        @logged_in = !@user.nil?
+        unless @user.nil?
+          settings.services.each do |k,service|
+            service.set_user @user if service.respond_to? :set_user
+          end
+        end
+      end
+
       # JSON Payload
       request.body.rewind
       body = request.body.read
@@ -32,6 +45,10 @@ module JsonApi
       content_type 'application/json; charset=utf-8'
       response.headers['Access-Control-Allow-Origin'] = '*'
       response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    end
+
+    def logged_in?
+      @logged_in
     end
 
     def add_error(code, message, reference = nil)
