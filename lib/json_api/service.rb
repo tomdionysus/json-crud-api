@@ -9,7 +9,7 @@ module JsonApi
       @user = nil
       @user_scopes = nil
     end
-    
+
     def create(params)
       @repo.create(params)
     end
@@ -45,15 +45,20 @@ module JsonApi
       @user_scopes = user_scopes
     end
 
-    def user_has_scope?(scope)
+    def user_authorized_for?(operation)
+      # Auth is disabled if scope map is nil
       return true if @scope_map.nil?
-      return false if @scope_map[scope].nil?
-      @user_scopes.include?(@scope_map[scope])
-    end
+      # Auth succeeds if there is no map for this operation
+      return true if @scope_map[operation].nil?
 
-    def check_scope(scope)
-      raise "user_scopes not set" if @user_scopes.nil? and not @scope_map.nil?
-      raise "not_authorized" unless user_has_scope?(scope)
+      if @scope_map[operation].is_a? Array
+        # Auth succeeds if the intersection of allowed scopes and mapped scopes is non-empty.
+        return (@scope_map[operation] & @user_scopes) > 0
+      end
+
+      # Auth succeeds if the mapped scope is singular and the user posesses it
+      return @user_scopes.include? @scope_map[operation]
+      false
     end
   end
 end

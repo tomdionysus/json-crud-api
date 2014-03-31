@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
     "lib/json_api.rb",
     "lib/json_api/service.rb",
     "lib/json_api/crud.rb",
-    "lib/json_api/sinatra_api.rb"
+    "lib/json_api/sinatra_api.rb",
     "lib/json_api/auth_client.rb"
   ]
   s.homepage    =
