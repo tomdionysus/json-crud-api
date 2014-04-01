@@ -16,7 +16,7 @@ module JsonApi
       data = @redis.get(get_redis_key(key))
       return nil if data.nil?
       touch(key)
-      JSON.parse(data)
+      JSON.parse(data, :symbolize_names => true)
     end
 
     def delete(key)
