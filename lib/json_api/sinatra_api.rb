@@ -79,7 +79,15 @@ module JsonApi
     end
 
     def fail_not_found
-      fail_with_error 404, 'NOT_FOUND','The resource cannot be found'
+      fail_with_error 404, 'NOT_FOUND','The resource cannot be found.'
+    end
+
+    def fail_unauthorized
+      fail_with_error 401, 'UNAUTHORIZED','Authorization is required to perform this operation on the resource.'
+    end
+
+    def fail_forbidden
+      fail_with_error 403, 'FORBIDDEN','The user is not allowed to perform this operation on the resource.'
     end
 
     not_found do
