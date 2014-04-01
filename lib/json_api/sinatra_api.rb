@@ -15,21 +15,21 @@ module JsonApi
       # JSON Errors
       @errors = []
 
+      # No-Cache by default
+      cache_control :no_cache, :max_age => 0
+
       # Session
+      @user = nil
+      @logged_in = false
       if settings.respond_to? :auth_client
         @session_id = env['HTTP_X_SESSION_ID']
-        if @session_id.nil?
-          @user = nil
-          @logged_in = false
-        else
+        unless @session_id.nil?
           @user = settings.auth_client.get(@session_id)
           @logged_in = !@user.nil?
-          unless @user.nil?
-            settings.services.each do |k,service|
-              service.set_user @user if service.respond_to? :set_user
-            end
-          end
         end
+      end
+      settings.services.each do |k,service|
+        service.set_user @user if service.respond_to? :set_user
       end
 
       # JSON Payload
