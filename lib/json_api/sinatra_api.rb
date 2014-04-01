@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'json_api/crud'
+require 'json_api'
 
 module JsonApi
   class SinatraApi < Sinatra::Base
