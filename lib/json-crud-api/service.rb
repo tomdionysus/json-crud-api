@@ -1,7 +1,9 @@
 require 'rubygems'
 
-module JsonApi
+module JsonCrudApi
   class Service
+
+    attr_accessor :log_service, :repo, :user, :user_scopes
 
     def initialize(options)
       @log_service = options[:log_service]

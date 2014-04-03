@@ -1,10 +1,10 @@
 require 'rubygems'
-require 'json_api'
+require 'sinatra'
 
-module JsonApi
-  class SinatraApi < Sinatra::Base
+module JsonCrudApi
+  class API < Sinatra::Base
 
-    register JsonApi::Crud
+    register JsonCrudApi::Crud
 
     before do
       # HTTPS Only (if configured)

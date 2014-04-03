@@ -1,4 +1,4 @@
-module JsonApi
+module JsonCrudApi
   module Crud
 
     def crud_api(url, key, options = [])

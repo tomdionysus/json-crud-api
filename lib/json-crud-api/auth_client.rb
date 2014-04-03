@@ -1,7 +1,6 @@
-require "rubygems"
-require "json"
+require 'rubygems'
 
-module JsonApi
+module JsonCrudApi
   class AuthClient
 
     attr_reader :redis, :session_ttl, :prefix
