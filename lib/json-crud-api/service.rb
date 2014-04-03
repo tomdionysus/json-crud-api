@@ -3,15 +3,17 @@ require 'rubygems'
 module JsonCrudApi
   class Service
 
-    attr_accessor :log_service, :repo, :user, :user_scopes
+    attr_accessor :log_service, :repo, :user, :scope_map, :user_scopes
 
     def initialize(options)
       @log_service = options[:log_service]
       @repo = options[:repository]
+      @scope_map = options[:scope_map]
       @user = nil
       @user_scopes = nil
     end
 
+    # Create a 
     def create(params)
       @repo.create(params)
     end
