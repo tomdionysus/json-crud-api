@@ -3,7 +3,7 @@ require 'rubygems'
 module JsonCrudApi
   class AuthClient
 
-    attr_reader :redis, :session_ttl, :prefix
+    attr_accessor :redis, :session_ttl, :prefix
 
     def initialize(options)
       @redis = options[:redis_client]
@@ -12,22 +12,30 @@ module JsonCrudApi
     end
 
     def get(key)
-      data = @redis.get(get_redis_key(key))
+      key = get_redis_key(key)
+      data = @redis.get(key)
       return nil if data.nil?
       touch(key)
       JSON.parse(data, :symbolize_names => true)
     end
 
     def delete(key)
-      return false unless @redis.exists(get_redis_key(key))
-      @redis.del(get_redis_key(key))
+      key = get_redis_key(key)
+      return false unless @redis.exists(key)
+      @redis.del(key)
       true
     end
 
     def touch(key)
-      return false unless @redis.exists(get_redis_key(key))
-      @redis.expire(get_redis_key(key), @session_ttl)
+      key = get_redis_key(key)
+      return false unless @redis.exists(key)
+      @redis.expire(key, @session_ttl)
       true
+    end
+
+    def get_redis_key(key)
+      return key.to_s if @prefix.nil?
+      @prefix.to_s+key.to_s
     end
   end
 end
