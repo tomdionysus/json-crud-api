@@ -13,23 +13,28 @@ module JsonCrudApi
       @user_scopes = nil
     end
 
-    # Create a 
+    # Create a record with the given attributes
     def create(params)
       @repo.create(params)
     end
 
+    # Determine if a record with the given id exists
     def exists?(id)
       @repo.all(:id => id).count > 0
     end
 
+    # Get all records
     def get_all
       @repo.all
     end
 
+    # Get the first record with the given id
     def get(id)
       @repo.first(:id => id)
     end
 
+    # Update a record with the given id with the given attributes
+    # Returns false if the record does not exist.
     def update(id, params)
       record = get(id)
       return false if record.nil?
@@ -37,6 +42,8 @@ module JsonCrudApi
       record.update(params)
     end
 
+    # Delete a record with the given id
+    # Returns false if the record does not exist.
     def delete(id)
       record = get(id)
       return false if record.nil?
@@ -44,15 +51,18 @@ module JsonCrudApi
       record.destroy
     end
 
+    # Set the current user
     def set_user(user)
       @user = user
       set_user_scopes(user[:scopes]) unless @user.nil?
     end
 
+    # Set the current user scopes
     def set_user_scopes(user_scopes)
       @user_scopes = user_scopes
     end
 
+    # Determine if the current user is authorized for the given operation
     def user_authorized_for?(operation)
       # Auth is disabled if scope map is nil
       return true if @scope_map.nil?
