@@ -3,11 +3,11 @@ require 'rubygems'
 module JsonCrudApi
   class Service
 
-    attr_accessor :log_service, :repo, :user, :scope_map, :user_scopes
+    attr_accessor :log_service, :model, :user, :scope_map, :user_scopes
 
     def initialize(options)
       @log_service = options[:log_service]
-      @repo = options[:repository]
+      @model = options[:model]
       @scope_map = options[:scope_map]
       @user = nil
       @user_scopes = nil
@@ -15,37 +15,37 @@ module JsonCrudApi
 
     # Create a record with the given attributes
     def create(params)
-      @repo.create(params)
+      @model.create(params)
     end
 
-    # Determine if a record with the given id exists
-    def exists?(id)
-      @repo.all(:id => id).count > 0
+    # Determine if a record with the given key exists
+    def exists?(key)
+      @model.all(@model.key.first.name => key).count > 0
     end
 
     # Get all records
     def get_all
-      @repo.all
+      @model.all
     end
 
-    # Get the first record with the given id
-    def get(id)
-      @repo.first(:id => id)
+    # Get the first record with the given key
+    def get(key)
+      @model.first(@model.key.first.name => key)
     end
 
-    # Update a record with the given id with the given attributes
+    # Update a record with the given key with the given attributes
     # Returns false if the record does not exist.
-    def update(id, params)
-      record = get(id)
+    def update(key, params)
+      record = get(key)
       return false if record.nil?
 
       record.update(params)
     end
 
-    # Delete a record with the given id
+    # Delete a record with the given key
     # Returns false if the record does not exist.
-    def delete(id)
-      record = get(id)
+    def delete(key)
+      record = get(key)
       return false if record.nil?
 
       record.destroy

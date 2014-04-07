@@ -2,13 +2,13 @@ require "helper"
 
 describe JsonCrudApi::Service do
   before(:each) do
-    @mock_repo = double('repo')
+    @mock_model = double('model')
     @mock_log = double('Log')
     @mock_map = double('Map')
 
     @service = JsonCrudApi::Service.new({
       :log_service => @mock_log,
-      :repository => @mock_repo,
+      :model => @mock_model,
       :scope_map => @mock_map
     })
   end
@@ -16,7 +16,7 @@ describe JsonCrudApi::Service do
   describe '#initialize' do
     it 'should inject dependencies correctly' do
       @service.log_service.should be @mock_log
-      @service.repo.should be @mock_repo
+      @service.model.should be @mock_model
       @service.scope_map.should be @mock_map
     end
 
@@ -27,53 +27,63 @@ describe JsonCrudApi::Service do
   end
 
   describe '#create' do
-    it 'should call create on repo with params' do
+    it 'should call create on model with params' do
       params = { :one => 'one', :two => 'two' }
-      @mock_repo.should_receive(:create).with(params).and_return(2)
+      @mock_model.should_receive(:create).with(params).and_return(2)
       @service.create(params).should eq 2
     end
   end
 
   describe '#exists?' do
-    it 'should call all on repo with correct id' do
+    it 'should call all on model with correct id' do
       query_object = OpenStruct.new :count => 1
-      @mock_repo.should_receive(:all).with(:id => 3)
+      @mock_model.should_receive(:key)
+        .and_return(OpenStruct.new(:first => OpenStruct.new(:name => :id)))
+      @mock_model.should_receive(:all).with(:id => 3)
         .and_return(query_object)
       @service.exists?(3).should eq true
     end
 
     it 'should return false when count is zero' do
       query_object = OpenStruct.new :count => 0
-      @mock_repo.should_receive(:all).with(:id => 3)
+      @mock_model.should_receive(:key)
+        .and_return(OpenStruct.new(:first => OpenStruct.new(:name => :id)))
+      @mock_model.should_receive(:all).with(:id => 3)
         .and_return(query_object)
       @service.exists?(3).should eq false
     end
 
     it 'should return true when count is one' do
       query_object = OpenStruct.new :count => 1
-      @mock_repo.should_receive(:all).with(:id => 3)
+      @mock_model.should_receive(:key)
+        .and_return(OpenStruct.new(:first => OpenStruct.new(:name => :id)))
+      @mock_model.should_receive(:all).with(:id => 3)
         .and_return(query_object)
       @service.exists?(3).should eq true
     end
 
     it 'should return true when count is more than one' do
       query_object = OpenStruct.new :count => 2
-      @mock_repo.should_receive(:all).with(:id => 3)
-        .and_return(query_object)
+      @mock_model.should_receive(:key)
+        .and_return(OpenStruct.new(:first => OpenStruct.new(:name => :id)))
+      @mock_model.should_receive(:all).with(:id => 3)
+      .and_return(query_object)
       @service.exists?(3).should eq true
     end
   end
 
   describe '#get_all' do
-    it 'should call all on repo and return output' do
-      @mock_repo.should_receive(:all).with().and_return(67)
+    it 'should call all on model and return output' do
+      @mock_model.should_receive(:all).with().and_return(67)
       @service.get_all.should eq 67
     end
   end
 
   describe '#get' do
-    it 'should call first on repo with correct id and return result' do
-      @mock_repo.should_receive(:first).with({:id=>8}).and_return(123)
+    it 'should call first on model with correct id and return result' do
+        @mock_model.should_receive(:key)
+          .and_return(OpenStruct.new(:first => OpenStruct.new(:name => :id)))
+        @mock_model.should_receive(:first).with({:id=>8}).and_return(123)
       @service.get(8).should eq 123
     end
   end
@@ -93,9 +103,9 @@ describe JsonCrudApi::Service do
       params = { :one => 'one', :two => 'two' }
       record = double('entity')
       @service.should_receive(:get).with(5)
-        .and_return(record)
+      .and_return(record)
       record.should_receive(:update).with(params)
-        .and_return(789)
+      .and_return(789)
       @service.update(5,params).should eq 789
     end
   end
@@ -114,7 +124,7 @@ describe JsonCrudApi::Service do
     it 'should call delete on record' do
       record = double('entity')
       @service.should_receive(:get).with(5)
-        .and_return(record)
+      .and_return(record)
       record.should_receive(:destroy).and_return(109)
       @service.delete(5).should eq 109
     end
