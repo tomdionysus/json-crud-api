@@ -1,25 +1,36 @@
 module JsonCrudApi
   class Presenter
 
-    attr_accessor :model
+    attr_accessor :model, :exclude
 
     def initialize(options)
       @model = options[:model]
+      @exclude = options[:exclude]
 
       throw "Model must be defined" if @model.nil?
     end
 
-    def render(data)
-      return data.map {|d| render(d) } if data.is_a?(Array)
+    def render(data, operation = nil)
+      return data.map {|d| render(d, operation) } if data.is_a?(Array)
 
-      Hash[@model.properties.map { |p| [p.name, data.send(p.name.to_sym)] }]
+      properties = @model.properties.map { |p| p.name.to_sym }
+      unless @exclude.nil? or @exclude[:render].nil? 
+        properties -= @exclude[:render][:all] unless @exclude[:render][:all].nil?
+        properties -= @exclude[:render][operation] unless @exclude[:render][operation].nil?
+      end
+
+      Hash[properties.map { |p| [p, data.send(p)] }]
     end
 
-    def parse(data)
-      return data.map {|d| parse(d) } if data.is_a?(Array)
+    def parse(data, operation = nil)
+      return data.map {|d| parse(d, operation) } if data.is_a?(Array)
 
-      properties = (@model.properties.map { |property| property.name.to_sym }) & (data.keys.map { |key| key.to_sym})
-      
+      properties = @model.properties.map { |p| p.name.to_sym }
+      unless @exclude.nil? or @exclude[:parse].nil? 
+        properties -= @exclude[:parse][:all] unless @exclude[:parse][:all].nil?
+        properties -= @exclude[:parse][operation] unless @exclude[:parse][operation].nil?
+      end
+
       Hash[properties.map { |p| [p,data[p]] }]
     end
 

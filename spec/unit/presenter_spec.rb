@@ -54,6 +54,36 @@ describe JsonCrudApi::Presenter do
 
       @presenter.render(data).should eq([{ :one => "Test" }, { :one => "TEST2" }])
     end
+
+    it 'should exclude render:all properties' do
+      @presenter.exclude = { :render => { :all => [:one] } }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:one => "Test",:two => "Two")
+
+      @presenter.render(data).should eq({ :two => "Two" }) 
+    end
+
+    it 'should exclude render:operation properties' do
+      @presenter.exclude = { :render => { :test => [:one] } }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:one => "Test",:two => "Two")
+
+      @presenter.render(data, :test).should eq({ :two => "Two" }) 
+    end
+
+    it 'should exclude combinations of render:all and render:operation properties' do
+      @presenter.exclude = { :render => { :all => [:two] , :test => [:one] } }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two), OpenStruct.new(:name => :three)]
+      end
+      data = OpenStruct.new(:one => "Test",:two => "Two",:three => "Three")
+
+      @presenter.render(data, :test).should eq({ :three => "Three" }) 
+    end
   end
 
   describe '#parse' do
@@ -89,6 +119,36 @@ describe JsonCrudApi::Presenter do
       data = [{ :one => 1 }]
 
       @presenter.parse(data).should eq([{ :one => 1 }])
+    end
+
+    it 'should exclude parse:all properties' do
+      @presenter.exclude = { :parse => { :all => [:one] } }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:one => "Test",:two => "Two")
+
+      @presenter.parse(data).should eq({ :two => "Two" }) 
+    end
+
+    it 'should exclude parse:operation properties' do
+      @presenter.exclude = { :parse => { :test => [:one] } }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:one => "Test",:two => "Two")
+
+      @presenter.parse(data, :test).should eq({ :two => "Two" }) 
+    end
+
+    it 'should exclude combinations of parse:all and parse:operation properties' do
+      @presenter.exclude = { :parse => { :all => [:two] , :test => [:one] } }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two), OpenStruct.new(:name => :three)]
+      end
+      data = OpenStruct.new(:one => "Test",:two => "Two",:three => "Three")
+
+      @presenter.parse(data, :test).should eq({ :three => "Three" }) 
     end
   end
 end

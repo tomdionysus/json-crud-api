@@ -13,7 +13,7 @@ module JsonCrudApi
             entities = service.get_all
             fail_not_found if entities.nil?
 
-            JSON.fast_generate settings.presenters[key].render(entities)
+            JSON.fast_generate settings.presenters[key].render(entities, :get_all)
           end
         end
 
@@ -25,7 +25,7 @@ module JsonCrudApi
             entity = service.get(params["id"])
             fail_not_found if entity.nil?
 
-            JSON.fast_generate settings.presenters[key].render(entity)
+            JSON.fast_generate settings.presenters[key].render(entity, :get)
           end
         end
 
@@ -38,9 +38,9 @@ module JsonCrudApi
             service = settings.services[key]
             presenter = settings.presenters[key]
             fail_unauthorized 'create' unless service.user_authorized_for? :create
-            entity = service.create(presenter.parse(@payload))
+            entity = service.create(presenter.parse(@payload, :post))
 
-            JSON.fast_generate settings.presenters[key].render(entity)
+            JSON.fast_generate settings.presenters[key].render(entity, :post)
           end
         end
 
@@ -49,9 +49,9 @@ module JsonCrudApi
             service = settings.services[key]
             presenter = settings.presenters[key]
             fail_unauthorized 'update' unless service.user_authorized_for? :update
-            fail_not_found unless service.update(params["id"], presenter.parse(@payload))
+            fail_not_found unless service.update(params["id"], presenter.parse(@payload, :put))
             entity = service.get(params["id"])
-            JSON.fast_generate settings.presenters[key].render(entity)
+            JSON.fast_generate settings.presenters[key].render(entity, :put)
           end
         end
 
