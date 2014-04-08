@@ -55,6 +55,46 @@ describe JsonCrudApi::Presenter do
       @presenter.render(data).should eq([{ :one => "Test" }, { :one => "TEST2" }])
     end
 
+    it 'should include render:all properties' do
+      @presenter.include = { :render => { :all => [:five] } }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:two => "Two",:five=>"Five")
+
+      @presenter.render(data).should eq({ :two => "Two", :five=>"Five" }) 
+    end
+
+    it 'should include global:all properties' do
+      @presenter.include = { :all => [:five] }
+      @mock_model.stub :properties do
+        [ OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:two => "Two",:five=>"Five")
+
+      @presenter.render(data).should eq({ :two => "Two", :five=>"Five" }) 
+    end
+
+    it 'should include global:operation properties' do
+      @presenter.include = { :test => [:five] }
+      @mock_model.stub :properties do
+        [ OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:two => "Two",:five=>"Five")
+
+      @presenter.render(data, :test).should eq({ :two => "Two", :five=>"Five" }) 
+    end
+
+    it 'should include render:operation properties' do
+      @presenter.include = { :render => { :test => [:five] } }
+      @mock_model.stub :properties do
+        [ OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:two => "Two",:five=>"Five")
+
+      @presenter.render(data, :test).should eq({ :two => "Two", :five=>"Five" }) 
+    end
+
     it 'should exclude render:all properties' do
       @presenter.exclude = { :render => { :all => [:one] } }
       @mock_model.stub :properties do
@@ -65,8 +105,28 @@ describe JsonCrudApi::Presenter do
       @presenter.render(data).should eq({ :two => "Two" }) 
     end
 
+    it 'should exclude global:all properties' do
+      @presenter.exclude = { :all => [:one] }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:one => "Test",:two => "Two")
+
+      @presenter.render(data).should eq({ :two => "Two" }) 
+    end
+
     it 'should exclude render:operation properties' do
       @presenter.exclude = { :render => { :test => [:one] } }
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two)]
+      end
+      data = OpenStruct.new(:one => "Test",:two => "Two")
+
+      @presenter.render(data, :test).should eq({ :two => "Two" }) 
+    end
+
+    it 'should exclude global:operation properties' do
+      @presenter.exclude = { :test => [:one] }
       @mock_model.stub :properties do
         [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two)]
       end
