@@ -37,7 +37,7 @@ module JsonCrudApi
           post url do
             service = settings.services[key]
             presenter = settings.presenters[key]
-            fail_unauthorized 'create' unless service.user_authorized_for? :create
+            fail_unauthorized unless service.user_authorized_for? :create
             entity = service.create(presenter.parse(@payload, :post))
 
             JSON.fast_generate settings.presenters[key].render(entity, :post)
@@ -48,7 +48,7 @@ module JsonCrudApi
           put url+"/:id" do
             service = settings.services[key]
             presenter = settings.presenters[key]
-            fail_unauthorized 'update' unless service.user_authorized_for? :update
+            fail_unauthorized unless service.user_authorized_for? :update
             fail_not_found unless service.update(params["id"], presenter.parse(@payload, :put))
             entity = service.get(params["id"])
             JSON.fast_generate settings.presenters[key].render(entity, :put)
@@ -59,7 +59,7 @@ module JsonCrudApi
           delete url+"/:id" do
             service = settings.services[key]
             presenter = settings.presenters[key]
-            fail_unauthorized 'delete' unless service.user_authorized_for? :delete
+            fail_unauthorized unless service.user_authorized_for? :delete
             fail_not_found unless service.delete(params["id"])
             204
           end
