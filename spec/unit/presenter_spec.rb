@@ -6,12 +6,16 @@ describe JsonCrudApi::Presenter do
 
     @presenter = JsonCrudApi::Presenter.new({
       :model => @mock_model,
+      :include => { :no_operation => 10 },
+      :exclude => { :no_operation => 11 }
     })
   end
 
   describe '#initialize' do
     it 'should inject dependencies correctly' do
       @presenter.model.should be @mock_model
+      @presenter.include.should eq({ :no_operation => 10 })
+      @presenter.exclude.should eq({ :no_operation => 11 })
     end
 
     it 'should throw an exception if model is not set' do

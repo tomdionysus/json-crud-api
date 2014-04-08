@@ -6,6 +6,7 @@ module JsonCrudApi
     def initialize(options)
       @model = options[:model]
       @exclude = options[:exclude]
+      @include = options[:include]
 
       throw "Model must be defined" if @model.nil?
     end
