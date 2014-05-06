@@ -8,19 +8,31 @@ module JsonCrudApi
       @exclude = options[:exclude]
       @include = options[:include]
 
+      # Properties Cache
+      @properties = { :render => {}, :parse => {} }
+
       throw "Model must be defined" if @model.nil?
     end
 
     def render(data, operation = nil)
       return data.map {|d| render(d, operation) } if data.is_a?(Array)
 
-      Hash[get_properties(:render, operation).map { |p| [p, data.send(p)] }]
+      unless @properties[:render].has_key? operation
+        @properties[:render][operation] = get_properties(:render, operation)
+      end
+      Hash[@properties[:render][operation].map { |p| [p, data.send(p)] }]
     end
 
     def parse(data, operation = nil)
       return data.map {|d| parse(d, operation) } if data.is_a?(Array)
 
-      Hash[get_properties(:parse, operation).map { |p| [p,data[p]] }]
+      unless @properties[:parse].has_key? operation
+        @properties[:parse][operation] = get_properties(:parse, operation)
+      end
+      
+      out = Hash.new
+      data.each_pair { |k,v| out[k] = v if @properties[:parse][operation].include?(k) }
+      out
     end
 
     def get_properties(method, operation)

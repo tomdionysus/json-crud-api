@@ -214,5 +214,15 @@ describe JsonCrudApi::Presenter do
 
       @presenter.parse(data, :test).should eq({ :three => "Three" }) 
     end
+
+    it 'should not supply keys that are not in the supplied data' do
+      @mock_model.stub :properties do
+        [OpenStruct.new(:name => :one), OpenStruct.new(:name => :two), OpenStruct.new(:name => :three)]
+      end
+
+      data = OpenStruct.new(:one => "Test",:two => "Two")
+
+      @presenter.parse(data, :test).keys.should_not include :three
+    end
   end
 end
