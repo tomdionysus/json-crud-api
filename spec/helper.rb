@@ -1,9 +1,12 @@
-require "coveralls"
-Coveralls.wear!
-SimpleCov.coverage_dir('spec/coverage')
+require 'simplecov'
+require 'rack/test'
 
 require "dotenv"
 Dotenv.load
+
+SimpleCov.start do
+  coverage_dir "spec/coverage"
+end
 
 require "json-crud-api"
 
