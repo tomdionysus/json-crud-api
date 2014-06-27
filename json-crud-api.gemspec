@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec"
   s.add_development_dependency "rspec-mocks"
   s.add_development_dependency "rack-test"
+  s.add_development_dependency "codeclimate-test-reporter"
   s.add_runtime_dependency 'dalli', '~> 2.6.4', '>= 2.6.4'
   s.add_runtime_dependency 'json', '~> 1.8.0', '>= 1.8.0'
   s.add_runtime_dependency 'mysql2', '~> 0.3.13', '>= 0.3.13'

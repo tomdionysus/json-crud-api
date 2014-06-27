@@ -1,3 +1,6 @@
+require "codeclimate-test-reporter"
+CodeClimate::TestReporter.start
+
 require 'simplecov'
 require 'rack/test'
 
@@ -7,6 +10,7 @@ Dotenv.load
 SimpleCov.start do
   coverage_dir "spec/coverage"
 end
+
 
 require "json-crud-api"
 
