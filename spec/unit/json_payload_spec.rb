@@ -62,6 +62,4 @@ describe JsonCrudApi::JsonPayload do
       expect(@test.payload).to be_nil
     end
   end
-
-  # TODO: Moar Specs!
 end
