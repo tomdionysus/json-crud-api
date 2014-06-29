@@ -19,6 +19,18 @@ module JsonCrudApi
       cache_control :no_cache, :max_age => 0
 
       # Session
+      process_session
+
+      # JSON Payload
+      process_json_payload
+
+      # CORS
+      content_type 'application/json; charset=utf-8'
+      response.headers['Access-Control-Allow-Origin'] = '*'
+      response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    end
+
+    def process_session
       @user = nil
       @logged_in = false
       if settings.respond_to? :auth_client
@@ -31,24 +43,22 @@ module JsonCrudApi
       settings.services.each do |k,service|
         service.set_user @user if service.respond_to? :set_user
       end
+    end
 
-      # JSON Payload
+    def process_json_payload
       request.body.rewind
-      body = request.body.read
-      if body.length > 2
-        begin
-          @payload = JSON.parse body, :symbolize_names => true
-        rescue JSON::ParserError
-          fail_with_error 422, 'JSON_PARSE_ERROR',  'The JSON payload cannot be parsed'
-        end
-      else
+      body = request.body.read 
+      unless body.length > 2
         @payload = nil
+        return
       end
 
-      # CORS
-      content_type 'application/json; charset=utf-8'
-      response.headers['Access-Control-Allow-Origin'] = '*'
-      response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+      begin
+        @payload = JSON.parse body, :symbolize_names => true
+      rescue JSON::ParserError
+        @payload = nil
+        fail_with_error 422, 'JSON_PARSE_ERROR',  'The JSON payload cannot be parsed'
+      end
     end
 
     def logged_in?
