@@ -37,14 +37,14 @@ module JsonCrudApi
 
     def get_properties(method, operation)
       properties = @model.properties.map { |p| p.name.to_sym }
-      properties -= property_set @exclude, method, operation unless @exclude.nil?
-      properties += property_set @include, method, operation unless @include.nil?
+      properties -= filter_properties @exclude, method, operation unless @exclude.nil?
+      properties += filter_properties @include, method, operation unless @include.nil?
       properties
     end
 
-    def property_set(parameter, method, operation)
+    def filter_properties(parameter, method, operation)
       properties = []
-            properties += parameter[:all] unless parameter[:all].nil?
+      properties += parameter[:all] unless parameter[:all].nil?
       properties += parameter[operation] unless parameter[operation].nil?
       unless parameter[method].nil?
         properties += parameter[method][:all] unless parameter[method][:all].nil?
