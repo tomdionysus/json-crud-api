@@ -6,74 +6,64 @@ module JsonCrudApi
     def crud_api(url, key, options = [])
 
       unless options.include? :disable_read
-        crud_api_get_all(url, key) unless options.include? :disable_get_all
-        crud_api_get(url, key) unless options.include? :disable_get
+        get url do crud_get_all(key) end unless options.include? :disable_get_all
+        get url+"/:id" do crud_get(key) end unless options.include? :disable_get
       end
 
       unless options.include? :disable_write
-        crud_api_post(url, key) unless options.include? :disable_post
-        crud_api_put(url, key) unless options.include? :disable_put
-        crud_api_delete(url, key) unless options.include? :disable_delete
+        post url do crud_post(key) end unless options.include? :disable_post
+        put url+"/:id" do crud_put(key) end unless options.include? :disable_put
+        delete url+"/:id" do crud_delete(key) end unless options.include? :disable_delete
       end
 
     end
 
     private
 
-    def crud_api_get_all(url, key)
-      get url do
-        service = settings.services[key]
-        presenter = settings.presenters[key]
-        fail_unauthorized unless service.user_authorized_for? :get_all
-        entities = service.get_all
-        fail_not_found if entities.nil?
+    def crud_get_all(key)
+      service = settings.services[key]
+      presenter = settings.presenters[key]
+      return fail_unauthorized unless service.user_authorized_for? :get_all
+      entities = service.get_all
+      return fail_not_found if entities.nil?
 
-        JSON.fast_generate settings.presenters[key].render(entities, :get_all)
-      end
+      JSON.fast_generate presenter.render(entities, :get_all)
     end
 
-    def crud_api_get(url, key)
-      get url+"/:id" do
-        service = settings.services[key]
-        presenter = settings.presenters[key]
-        fail_unauthorized unless service.user_authorized_for? :get
-        entity = service.get(params["id"])
-        fail_not_found if entity.nil?
+    def crud_get(key)
+      service = settings.services[key]
+      presenter = settings.presenters[key]
+      return fail_unauthorized unless service.user_authorized_for? :get
+      entity = service.get(params["id"])
+      return fail_not_found if entity.nil?
 
-        JSON.fast_generate settings.presenters[key].render(entity, :get)
-      end
+      JSON.fast_generate presenter.render(entity, :get)
     end
 
-    def crud_api_post(url, key)
-      post url do
-        service = settings.services[key]
-        presenter = settings.presenters[key]
-        fail_unauthorized unless service.user_authorized_for? :create
-        entity = service.create(presenter.parse(@payload, :post))
+    def crud_post(key)
+      service = settings.services[key]
+      presenter = settings.presenters[key]
+      return fail_unauthorized unless service.user_authorized_for? :create
+      entity = service.create(presenter.parse(@payload, :post))
 
-        JSON.fast_generate settings.presenters[key].render(entity, :post)
-      end
+      JSON.fast_generate presenter.render(entity, :post)
     end
 
-    def crud_api_put(url, key)
-      put url+"/:id" do
-        service = settings.services[key]
-        presenter = settings.presenters[key]
-        fail_unauthorized unless service.user_authorized_for? :update
-        fail_not_found unless service.update(params["id"], presenter.parse(@payload, :put))
-        entity = service.get(params["id"])
-        JSON.fast_generate settings.presenters[key].render(entity, :put)
-      end
+    def crud_put(key)
+      service = settings.services[key]
+      presenter = settings.presenters[key]
+      return fail_unauthorized unless service.user_authorized_for? :update
+      return fail_not_found unless service.update(params["id"], presenter.parse(@payload, :put))
+      entity = service.get(params["id"])
+      JSON.fast_generate presenter.render(entity, :put)
     end
 
-    def crud_api_delete(url, key)
-      delete url+"/:id" do
-        service = settings.services[key]
-        presenter = settings.presenters[key]
-        fail_unauthorized unless service.user_authorized_for? :delete
-        fail_not_found unless service.delete(params["id"])
-        204
-      end
+    def crud_delete(key)
+      service = settings.services[key]
+      presenter = settings.presenters[key]
+      return fail_unauthorized unless service.user_authorized_for? :delete
+      return fail_not_found unless service.delete(params["id"])
+      204
     end
   end
 end
