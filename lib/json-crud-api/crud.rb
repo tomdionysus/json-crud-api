@@ -21,27 +21,27 @@ module JsonCrudApi
     private
 
     def crud_api_get_all(url, key)
-            get url do
-            service = settings.services[key]
-            presenter = settings.presenters[key]
-            fail_unauthorized unless service.user_authorized_for? :get_all
-            entities = service.get_all
-            fail_not_found if entities.nil?
+      get url do
+        service = settings.services[key]
+        presenter = settings.presenters[key]
+        fail_unauthorized unless service.user_authorized_for? :get_all
+        entities = service.get_all
+        fail_not_found if entities.nil?
 
-            JSON.fast_generate settings.presenters[key].render(entities, :get_all)
-          end
+        JSON.fast_generate settings.presenters[key].render(entities, :get_all)
+      end
     end
 
     def crud_api_get(url, key)
-          get url+"/:id" do
-            service = settings.services[key]
-            presenter = settings.presenters[key]
-            fail_unauthorized unless service.user_authorized_for? :get
-            entity = service.get(params["id"])
-            fail_not_found if entity.nil?
+      get url+"/:id" do
+        service = settings.services[key]
+        presenter = settings.presenters[key]
+        fail_unauthorized unless service.user_authorized_for? :get
+        entity = service.get(params["id"])
+        fail_not_found if entity.nil?
 
-            JSON.fast_generate settings.presenters[key].render(entity, :get)
-          end
+        JSON.fast_generate settings.presenters[key].render(entity, :get)
+      end
     end
 
     def crud_api_post(url, key)

@@ -11,8 +11,6 @@ Gem::Specification.new do |s|
   s.homepage    = 'http://rubygems.org/gems/json-crud-api'
   s.license     = 'MIT'
   s.required_ruby_version = '>= 2.0.0'
-  s.add_development_dependency "simplecov"
-  s.add_development_dependency "dotenv"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec"
   s.add_development_dependency "rspec-mocks"

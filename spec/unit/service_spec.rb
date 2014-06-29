@@ -1,4 +1,4 @@
-require "helper"
+require "spec_helper"
 
 describe JsonCrudApi::Service do
   before(:each) do
