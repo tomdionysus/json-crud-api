@@ -117,6 +117,4 @@ describe JsonCrudApi::JsonErrors do
       @test.fail_forbidden
     end
   end
-
-  # TODO: Moar Specs!
 end
