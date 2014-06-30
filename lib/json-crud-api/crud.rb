@@ -18,8 +18,6 @@ module JsonCrudApi
 
     end
 
-    private
-
     def crud_get_all(key)
       service = settings.services[key]
       presenter = settings.presenters[key]
