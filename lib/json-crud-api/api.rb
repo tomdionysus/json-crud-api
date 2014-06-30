@@ -4,10 +4,11 @@ require 'sinatra'
 module JsonCrudApi
   class API < Sinatra::Base
 
-    register JsonCrudApi::Session
-    register JsonCrudApi::JsonPayload
     register JsonCrudApi::Crud
-    register JsonCrudApi::JsonErrors
+
+    include JsonCrudApi::Session
+    include JsonCrudApi::JsonPayload
+    include JsonCrudApi::JsonErrors
 
     before do
       # HTTPS Only (if configured)
