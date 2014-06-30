@@ -4,7 +4,8 @@ require 'sinatra'
 module JsonCrudApi
   class API < Sinatra::Base
 
-    register JsonCrudApi::Crud
+    include JsonCrudApi::Crud
+    register JsonCrudApi::CrudExtension
 
     include JsonCrudApi::Session
     include JsonCrudApi::JsonPayload
