@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'json-crud-api'
-  s.version     = '0.0.7'
+  s.version     = '0.0.8'
   s.date        = '2014-05-30'
   s.summary     = 'Sinatra JSON API Framework Classes'
   s.description = "A set of classes to simplify JSON APIs"
