@@ -16,7 +16,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec-mocks"
   s.add_development_dependency "rack-test"
   s.add_development_dependency "codeclimate-test-reporter"
-  s.add_runtime_dependency 'dalli', '~> 2.6.4', '>= 2.6.4'
   s.add_runtime_dependency 'json', '~> 1.8.0', '>= 1.8.0'
   s.add_runtime_dependency 'sinatra', '~> 1.4.3', '>= 1.4.3'
   s.add_runtime_dependency 'datamapper', '~> 1.2.0', '>= 1.2.0'
