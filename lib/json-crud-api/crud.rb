@@ -27,7 +27,7 @@ module JsonCrudApi
       presenter = settings.presenters[key]
       return fail_unauthorized unless service.user_authorized_for? :create
       post_data = presenter.parse @payload, :post
-      return fail_with_errors unless service.is_valid? post_data, :create, self
+      return fail_with_errors unless service.valid_for? post_data, :create, self
       entity = service.create post_data 
       JSON.fast_generate presenter.render(entity, :post)
     end
@@ -37,7 +37,7 @@ module JsonCrudApi
       presenter = settings.presenters[key]
       return fail_unauthorized unless service.user_authorized_for? :update
       put_data = presenter.parse @payload, :put
-      return fail_with_errors unless service.is_valid? put_data, :update, self
+      return fail_with_errors unless service.valid_for? put_data, :update, self
       return fail_not_found unless service.update params["id"], put_data
       entity = service.get params["id"]
       JSON.fast_generate presenter.render(entity, :put)
