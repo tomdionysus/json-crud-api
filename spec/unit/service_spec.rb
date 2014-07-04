@@ -160,6 +160,12 @@ describe JsonCrudApi::Service do
     end
   end
 
+  describe '#valid_for?' do
+    it 'should return true' do
+      expect(@service.valid_for?(nil,nil,nil)).to be true
+    end
+  end
+
   describe '#user_authorized_for?' do
     it 'should return true if scope_map is nil' do
       @service.scope_map = nil
