@@ -42,13 +42,13 @@ describe JsonCrudApi::AuthClient do
       expect(@test.send(:crud_get_all,'thekey')).to eq '{"test_output":1}'
     end
 
-    it 'should fail_unauthorized if not authorized for get_all' do
+    it 'should fail_forbidden if not authorized for get_all' do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
       expect(@service).to receive(:user_authorized_for?).with(:get_all).and_return(false)
 
-      expect(@test).to receive(:fail_unauthorized)
+      expect(@test).to receive(:fail_forbidden)
 
       expect(@service).not_to receive(:get_all)
       expect(@presenter).not_to receive(:render)
@@ -96,13 +96,13 @@ describe JsonCrudApi::AuthClient do
       expect(@test.send(:crud_get,'thekey')).to eq '{"test_output":56}'
     end
 
-    it 'should fail_unauthorized if not authorized for get' do
+    it 'should fail_forbidden if not authorized for get' do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
       expect(@service).to receive(:user_authorized_for?).with(:get).and_return(false)
 
-      expect(@test).to receive(:fail_unauthorized)
+      expect(@test).to receive(:fail_forbidden)
 
       expect(@service).not_to receive(:get)
       expect(@presenter).not_to receive(:render)
@@ -169,13 +169,13 @@ describe JsonCrudApi::AuthClient do
       @test.send(:crud_post,'thekey')
     end
 
-    it 'should fail_unauthorized if not authorized for create' do
+    it 'should fail_forbidden if not authorized for create' do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
       expect(@service).to receive(:user_authorized_for?).with(:create).and_return(false)
 
-      expect(@test).to receive(:fail_unauthorized)
+      expect(@test).to receive(:fail_forbidden)
 
       expect(@service).not_to receive(:create)
       expect(@presenter).not_to receive(:render)
@@ -242,13 +242,13 @@ describe JsonCrudApi::AuthClient do
       @test.send(:crud_put,'thekey')
     end
 
-    it 'should fail_unauthorized if not authorized for update' do
+    it 'should fail_forbidden if not authorized for update' do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
       expect(@service).to receive(:user_authorized_for?).with(:update).and_return(false)
 
-      expect(@test).to receive(:fail_unauthorized)
+      expect(@test).to receive(:fail_forbidden)
 
       expect(@service).not_to receive(:update)
       expect(@service).not_to receive(:get)
@@ -280,13 +280,13 @@ describe JsonCrudApi::AuthClient do
       expect(@test.send(:crud_delete,'thekey')).to eq 204
     end
 
-    it 'should fail_unauthorized if not authorized for delete' do
+    it 'should fail_forbidden if not authorized for delete' do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
       expect(@service).to receive(:user_authorized_for?).with(:delete).and_return(false)
 
-      expect(@test).to receive(:fail_unauthorized)
+      expect(@test).to receive(:fail_forbidden)
 
       expect(@service).not_to receive(:delete)
 
