@@ -143,12 +143,30 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
       expect(@service).to receive(:user_authorized_for?).with(:create).and_return(true)
+      expect(@service).to receive(:is_valid?).with({ :test_output => 12398}, :create, @test).and_return(true)
       expect(@service).to receive(:create).with({ :test_output => 12398}).and_return({ :test_output => 77234})
 
       expect(@presenter).to receive(:parse).with(@test.payload, :post).and_return({ :test_output => 12398})
       expect(@presenter).to receive(:render).with({ :test_output => 77234}, :post).and_return({ :test_output => 12313})
 
       expect(@test.send(:crud_post,'thekey')).to eq '{"test_output":12313}'
+    end
+
+    it 'should fail with 422 if service is_valid? fails' do
+      expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
+      expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
+
+      expect(@service).to receive(:user_authorized_for?).with(:create).and_return(true)
+      expect(@service).to receive(:is_valid?).with({ :test_output => 12398}, :create, @test).and_return(false)
+      
+      expect(@presenter).to receive(:parse).with(@test.payload, :post).and_return({ :test_output => 12398})
+
+      expect(@test).to receive(:fail_with_errors)
+
+      expect(@service).not_to receive(:create)
+      expect(@presenter).not_to receive(:render)
+
+      @test.send(:crud_post,'thekey')
     end
 
     it 'should fail_unauthorized if not authorized for create' do
@@ -184,13 +202,28 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
       expect(@service).to receive(:user_authorized_for?).with(:update).and_return(true)
+      expect(@presenter).to receive(:parse).with(@test.payload, :put).and_return({ :test_output => 12398})
+      expect(@service).to receive(:is_valid?).with({ :test_output => 12398},:update,@test).and_return(true)
       expect(@service).to receive(:update).with(7345, { :test_output => 12398}).and_return(true)
       expect(@service).to receive(:get).with(7345).and_return({ :test_output => 77234})
 
-      expect(@presenter).to receive(:parse).with(@test.payload, :put).and_return({ :test_output => 12398})
       expect(@presenter).to receive(:render).with({ :test_output => 77234}, :put).and_return({ :test_output => 12313})
 
       expect(@test.send(:crud_put,'thekey')).to eq '{"test_output":12313}'
+    end
+
+    it 'should fail_with_errors if service is_valid? fails' do
+      expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
+      expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
+
+      expect(@service).to receive(:user_authorized_for?).with(:update).and_return(true)
+      expect(@presenter).to receive(:parse).with(@test.payload, :put).and_return({ :test_output => 12398})
+      expect(@service).to receive(:is_valid?).with({ :test_output => 12398},:update,@test).and_return(false)
+      expect(@presenter).not_to receive(:render)
+
+      expect(@test).to receive(:fail_with_errors)
+
+      expect(@test.send(:crud_put,'thekey'))
     end
 
     it 'should fail_not_found if service update returned false' do
@@ -198,6 +231,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
       expect(@service).to receive(:user_authorized_for?).with(:update).and_return(true)
+      expect(@service).to receive(:is_valid?).with({ :test_output => 12398},:update,@test).and_return(true)
       expect(@service).to receive(:update).with(7345, { :test_output => 12398}).and_return(false)
 
       expect(@test).to receive(:fail_not_found)

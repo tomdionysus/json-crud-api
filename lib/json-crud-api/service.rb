@@ -62,6 +62,11 @@ module JsonCrudApi
       @user_scopes = user_scopes
     end
 
+    # Find if the params are valid for an operation (defaults to true)
+    def valid_for?(params, operation, api_instance)
+      true
+    end
+
     # Determine if the current user is authorized for the given operation
     def user_authorized_for?(operation)
       # Auth is disabled if scope map is nil
