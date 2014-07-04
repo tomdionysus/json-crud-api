@@ -99,7 +99,7 @@ describe JsonCrudApi::JsonErrors do
 
   describe '#fail_not_found' do
     it 'should call fail_not_found with 404 and message' do
-      expect(@test).to receive(:fail_with_error).with(404, 'NOT_FOUND','The resource cannot be found.')
+      expect(@test).to receive(:fail_with_errors).with(404)
       @test.fail_not_found
     end
   end
