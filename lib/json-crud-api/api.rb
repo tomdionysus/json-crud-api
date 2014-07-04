@@ -33,7 +33,11 @@ module JsonCrudApi
     end
 
     not_found do
-      fail_not_found
+      add_error 'NOT_FOUND','The resource cannot be found.'
+      halt status, JSON.fast_generate({
+        :success => false,
+        :errors => @errors
+      })
     end
 
     error do

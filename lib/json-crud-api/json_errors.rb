@@ -31,7 +31,7 @@ module JsonCrudApi
     end
 
     def fail_not_found
-      fail_with_error 404, 'NOT_FOUND','The resource cannot be found.'
+      fail_with_errors 404
     end
 
     def fail_unauthorized
