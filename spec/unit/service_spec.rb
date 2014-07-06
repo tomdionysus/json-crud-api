@@ -19,11 +19,6 @@ describe JsonCrudApi::Service do
       expect(@service.model).to be @mock_model
       expect(@service.scope_map).to be @mock_map
     end
-
-    it 'should initialize user and scopes to nil' do
-      expect(@service.user).to be nil
-      expect(@service.user_scopes).to be nil
-    end
   end
 
   describe '#create' do
@@ -130,36 +125,6 @@ describe JsonCrudApi::Service do
     end
   end
 
-  describe '#set_user' do
-    it 'should set user in service to param' do
-      @service.set_user(nil)
-      expect(@service.user).to eq nil
-    end
-
-    it 'should not call set_user_scopes if user is nil' do
-      expect(@service).not_to receive(:set_user_scopes)
-      @service.set_user(nil)
-      expect(@service.user).to eq nil
-    end
-
-    it 'should call set_user_scopes if user is not' do
-      user = { :scopes => [1,2] }
-      expect(@service).to receive(:set_user_scopes).with([1,2])
-      @service.set_user(user)
-      expect(@service.user).to eq user
-    end
-  end
-
-  describe '#set_user_scopes' do
-    it 'should set user_scopes in service to param' do
-      @service.set_user_scopes(nil)
-      expect(@service.user_scopes).to eq nil
-
-      @service.set_user_scopes(234234)
-      expect(@service.user_scopes).to eq 234234
-    end
-  end
-
   describe '#valid_for?' do
     it 'should return true' do
       expect(@service.valid_for?(nil,nil,nil)).to be true
@@ -169,67 +134,59 @@ describe JsonCrudApi::Service do
   describe '#user_authorized_for?' do
     it 'should return true if scope_map is nil' do
       @service.scope_map = nil
-      expect(@service.user_authorized_for?(:one)).to be true
+      expect(@service.user_authorized_for?(nil,:one)).to be true
     end
 
     it 'should return true if scope_map is not nil but no map for operation' do
       @service.scope_map = { :two => 'TWO' }
-      expect(@service.user_authorized_for?(:one)).to be true
+      expect(@service.user_authorized_for?(nil,:one)).to be true
     end
 
-    it 'should return false if user is nil' do
+    it 'should return false if user is nil with non nil scope map' do
       @service.scope_map = { :two => 'TWO' }
-      @service.user = nil
-      expect(@service.user_authorized_for?(:two)).to be false
+      expect(@service.user_authorized_for?(nil, :two)).to be false
     end
 
     it 'should return false if user has nil scopes' do
       @service.scope_map = { :two => 'TWO' }
-      @service.user = { :name => "Tom" }
-      @service.user_scopes = nil
-      expect(@service.user_authorized_for?(:two)).to be false
+      @user = { :name => "Tom", :scopes => nil }
+      expect(@service.user_authorized_for?(@user, :two)).to be false
     end
 
     it 'should return false if user has empty scopes' do
       @service.scope_map = { :two => 'TWO' }
-      @service.user = { :name => "Tom" }
-      @service.user_scopes = []
-      expect(@service.user_authorized_for?(:two)).to be false
+      @user = { :name => "Tom", :scopes => [] }
+      expect(@service.user_authorized_for?(@user, :two)).to be false
     end
 
     it 'should return true if scope map exists in user scopes' do
       @service.scope_map = { :two => 'FIVE'}
-      @service.user = { :name => "Tom" }
-      @service.user_scopes = [ 'ONE', 'TWO', 'FIVE']
-      expect(@service.user_authorized_for?(:two)).to be true
+      @user = { :name => "Tom", :scopes => [ 'ONE', 'TWO', 'FIVE'] }
+      expect(@service.user_authorized_for?(@user, :two)).to be true
     end
 
     it 'should return false if scope map does not exist in user scopes' do
       @service.scope_map = { :two => 'SEVEN'}
-      @service.user = { :name => "Tom" }
-      @service.user_scopes = [ 'ONE', 'TWO', 'FIVE']
-      expect(@service.user_authorized_for?(:two)).to be false
+      @user = { :name => "Tom", :scopes => [ 'ONE', 'TWO', 'FIVE'] }
+      expect(@service.user_authorized_for?(@user, :two)).to be false
     end
 
     it 'should return true if scope map is array and shares one scope with user' do
       @service.scope_map = { :two => ['TWO'] }
-      @service.user = { :name => "Tom" }
-      @service.user_scopes = [ 'ONE', 'TWO', 'THREE']
-      expect(@service.user_authorized_for?(:two)).to be true
+      @user = { :name => "Tom", :scopes => [ 'ONE', 'TWO', 'THREE'] }
+      expect(@service.user_authorized_for?(@user, :two)).to be true
     end
 
     it 'should return true if scope map is array and shares more than one scope with user' do
       @service.scope_map = { :two => ['TWO','THREE'] }
-      @service.user = { :name => "Tom" }
-      @service.user_scopes = [ 'ONE', 'TWO', 'THREE']
-      expect(@service.user_authorized_for?(:two)).to be true
+      @user = { :name => "Tom", :scopes => [ 'ONE', 'TWO', 'THREE'] }
+      expect(@service.user_authorized_for?(@user, :two)).to be true
     end
 
     it 'should return false if scope map is array and does not share scopes with user' do
       @service.scope_map = { :two => ['FOUR'] }
-      @service.user = { :name => "Tom" }
-      @service.user_scopes = [ 'ONE', 'TWO', 'THREE']
-      expect(@service.user_authorized_for?(:two)).to be false
+      @user = { :name => "Tom", :scopes => [ 'ONE', 'TWO', 'THREE'] }
+      expect(@service.user_authorized_for?(@user, :two)).to be false
     end
   end
 end

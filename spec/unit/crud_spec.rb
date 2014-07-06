@@ -2,8 +2,10 @@ require "spec_helper"
 
 describe JsonCrudApi::AuthClient do
   before(:each) do
+    @test_user = { :name=>"Test User", :scopes => ['ADMIN'] }
+
     class CrudTest
-      attr_accessor :test_settings, :test_params, :payload
+      attr_accessor :test_settings, :test_params, :payload, :user
       include JsonCrudApi::Crud
 
       def settings
@@ -16,6 +18,8 @@ describe JsonCrudApi::AuthClient do
     end
 
     @test = CrudTest.new
+    @test.user = @test_user
+    
   end
 
   describe '#crud_get_all' do
@@ -28,13 +32,14 @@ describe JsonCrudApi::AuthClient do
         :services=>OpenStruct.new,
         :presenters=>OpenStruct.new
       })
+
     end
 
     it 'should call get_all on service, render on the presenter, and return JSON' do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:get_all).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :get_all).and_return(true)
       expect(@service).to receive(:get_all).and_return([])
 
       expect(@presenter).to receive(:render).with([], :get_all).and_return({ :test_output => 1})
@@ -46,7 +51,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:get_all).and_return(false)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :get_all).and_return(false)
 
       expect(@test).to receive(:fail_forbidden)
 
@@ -60,7 +65,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:get_all).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :get_all).and_return(true)
       expect(@service).to receive(:get_all).and_return(nil)
 
       expect(@test).to receive(:fail_not_found)
@@ -88,7 +93,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:get).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :get).and_return(true)
       expect(@service).to receive(:get).with(234).and_return([])
 
       expect(@presenter).to receive(:render).with([], :get).and_return({ :test_output => 56})
@@ -100,7 +105,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:get).and_return(false)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :get).and_return(false)
 
       expect(@test).to receive(:fail_forbidden)
 
@@ -114,7 +119,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:get).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :get).and_return(true)
       expect(@service).to receive(:get).with(234).and_return(nil)
 
       expect(@test).to receive(:fail_not_found)
@@ -142,7 +147,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:create).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :create).and_return(true)
       expect(@service).to receive(:valid_for?).with({ :test_output => 12398}, :create, @test).and_return(true)
       expect(@service).to receive(:create).with({ :test_output => 12398}).and_return({ :test_output => 77234})
 
@@ -156,7 +161,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:create).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :create).and_return(true)
       expect(@service).to receive(:valid_for?).with({ :test_output => 12398}, :create, @test).and_return(false)
       
       expect(@presenter).to receive(:parse).with(@test.payload, :post).and_return({ :test_output => 12398})
@@ -173,7 +178,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:create).and_return(false)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :create).and_return(false)
 
       expect(@test).to receive(:fail_forbidden)
 
@@ -201,7 +206,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:update).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :update).and_return(true)
       expect(@presenter).to receive(:parse).with(@test.payload, :put).and_return({ :test_output => 12398})
       expect(@service).to receive(:valid_for?).with({ :test_output => 12398},:update,@test).and_return(true)
       expect(@service).to receive(:update).with(7345, { :test_output => 12398}).and_return(true)
@@ -216,7 +221,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:update).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :update).and_return(true)
       expect(@presenter).to receive(:parse).with(@test.payload, :put).and_return({ :test_output => 12398})
       expect(@service).to receive(:valid_for?).with({ :test_output => 12398},:update,@test).and_return(false)
       expect(@presenter).not_to receive(:render)
@@ -230,7 +235,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:update).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :update).and_return(true)
       expect(@service).to receive(:valid_for?).with({ :test_output => 12398},:update,@test).and_return(true)
       expect(@service).to receive(:update).with(7345, { :test_output => 12398}).and_return(false)
 
@@ -246,7 +251,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:update).and_return(false)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :update).and_return(false)
 
       expect(@test).to receive(:fail_forbidden)
 
@@ -274,7 +279,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:delete).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :delete).and_return(true)
       expect(@service).to receive(:delete).with(234).and_return(true)
 
       expect(@test.send(:crud_delete,'thekey')).to eq 204
@@ -284,7 +289,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:delete).and_return(false)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :delete).and_return(false)
 
       expect(@test).to receive(:fail_forbidden)
 
@@ -297,7 +302,7 @@ describe JsonCrudApi::AuthClient do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
-      expect(@service).to receive(:user_authorized_for?).with(:delete).and_return(true)
+      expect(@service).to receive(:user_authorized_for?).with(@test_user, :delete).and_return(true)
       expect(@service).to receive(:delete).with(234).and_return(false)
 
       expect(@test).to receive(:fail_not_found)
