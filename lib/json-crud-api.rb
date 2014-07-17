@@ -1,3 +1,4 @@
+require "json-crud-api/query"
 require "json-crud-api/session"
 require "json-crud-api/presenter"
 require "json-crud-api/service"
