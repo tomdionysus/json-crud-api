@@ -6,3 +6,7 @@ json-crud-api
 ## Introduction
 
 The `json-crud-api` gem is a set of classes designed to simplify the creation of JSON REST APIs for both CRUD and custom logic.
+
+## Roadmap
+
+Please see [here](docs/roadmap.md)
