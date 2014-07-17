@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe JsonCrudApi::AuthClient do
+describe JsonCrudApi::Crud do
   before(:each) do
     @test_user = { :name=>"Test User", :scopes => ['ADMIN'] }
 
@@ -19,7 +19,8 @@ describe JsonCrudApi::AuthClient do
 
     @test = CrudTest.new
     @test.user = @test_user
-    
+    @test.test_params = {}
+
   end
 
   describe '#crud_get_all' do
@@ -163,7 +164,7 @@ describe JsonCrudApi::AuthClient do
 
       expect(@service).to receive(:user_authorized_for?).with(@test_user, :create).and_return(true)
       expect(@service).to receive(:valid_for?).with({ :test_output => 12398}, :create, @test).and_return(false)
-      
+
       expect(@presenter).to receive(:parse).with(@test.payload, :post).and_return({ :test_output => 12398})
 
       expect(@test).to receive(:fail_with_errors)
@@ -263,7 +264,7 @@ describe JsonCrudApi::AuthClient do
     end
   end
 
-    describe '#crud_delete' do
+  describe '#crud_delete' do
     before do
       @service = double('service')
       @presenter = double('presenter')
@@ -298,7 +299,7 @@ describe JsonCrudApi::AuthClient do
       @test.send(:crud_delete,'thekey')
     end
 
-        it 'should fail_not_found if service delete returned false' do
+    it 'should fail_not_found if service delete returned false' do
       expect(@test.test_settings.services).to receive(:[]).with('thekey').and_return(@service)
       expect(@test.test_settings.presenters).to receive(:[]).with('thekey').and_return(@presenter)
 
@@ -310,5 +311,45 @@ describe JsonCrudApi::AuthClient do
       @test.send(:crud_delete,'thekey')
     end
 
+  end
+
+  describe '#multiple_ids?' do
+    it 'should return false for a singular param id' do
+      @test.test_params["id"] = "123"
+
+      expect(@test.send(:multiple_ids?)).to be false
+    end
+
+    it 'should return true for multiple param ids' do
+      @test.test_params["id"] = "12,882"
+
+      expect(@test.send(:multiple_ids?)).to be true
+    end
+
+    it 'should return true for range param ids' do
+      @test.test_params["id"] = "[1..10]"
+
+      expect(@test.send(:multiple_ids?)).to be true
+    end
+
+    it 'should return true for mixed range param ids' do
+      @test.test_params["id"] = "5,6,[1..10]"
+
+      expect(@test.send(:multiple_ids?)).to be true
+    end
+  end
+
+  describe '#parse_ids' do
+    it 'should return correctly for a singular param id' do
+      @test.test_params["id"] = "123"
+
+      expect(@test.send(:parse_ids)).to eq ["123"]
+    end
+
+    it 'should return correctly for multiple param ids' do
+      @test.test_params["id"] = "12,882"
+
+      expect(@test.send(:parse_ids)).to eq ["12","882"]
+    end
   end
 end
