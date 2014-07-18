@@ -3,7 +3,7 @@ require 'cgi'
 module JsonCrudApi
   class Query
 
-    VALID_OPERATIONS = [:equ, :neq, :lt, :gt, :lte, :gte, :like, :notlike]
+    VALID_OPERATIONS = [:eq, :ne, :lt, :gt, :lte, :gte, :like, :notlike]
     
     attr_accessor :valid, :mode, :arguments, :filters, :include_fields, :exclude_fields, :link_relations, :embed_relations, :errors
 
@@ -94,7 +94,7 @@ module JsonCrudApi
       h[:value] = value
 
       if ops.count == 1
-        h[:operation] = :equ
+        h[:operation] = :eq
         return h
       end
 

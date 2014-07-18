@@ -149,28 +149,28 @@ describe JsonCrudApi::Query do
     end
 
     describe 'query filter parameters' do
-      it 'should add a single default equ filter' do
+      it 'should add a single default eq filter' do
         @inst.parse_from('one=two')
-        expect(@inst.filters).to eq([{:name=>'one',:operation=>:equ,:path=>[],:value=>'two'}])
+        expect(@inst.filters).to eq([{:name=>'one',:operation=>:eq,:path=>[],:value=>'two'}])
       end
 
       it 'should add a single operation filter' do
-        @inst.parse_from('one|neq=two')
-        expect(@inst.filters).to eq([{:name=>'one',:operation=>:neq,:path=>[],:value=>'two'}])
+        @inst.parse_from('one|ne=two')
+        expect(@inst.filters).to eq([{:name=>'one',:operation=>:ne,:path=>[],:value=>'two'}])
       end
 
-      it 'should add multiple default equ filters' do
+      it 'should add multiple default eq filters' do
         @inst.parse_from('one=two&three=four')
         expect(@inst.filters).to eq([
-          {:name=>"one", :path=>[], :value=>"two", :operation=>:equ},
-          {:name=>"three", :path=>[], :value=>"four", :operation=>:equ}
+          {:name=>"one", :path=>[], :value=>"two", :operation=>:eq},
+          {:name=>"three", :path=>[], :value=>"four", :operation=>:eq}
         ])
       end
 
       it 'should add multiple operation filters' do
-        @inst.parse_from('one|neq=two&three|like=four')
+        @inst.parse_from('one|ne=two&three|like=four')
         expect(@inst.filters).to eq([
-          {:name=>"one", :path=>[], :value=>"two", :operation=>:neq},
+          {:name=>"one", :path=>[], :value=>"two", :operation=>:ne},
           {:name=>"three", :path=>[], :value=>"four", :operation=>:like}
         ])
       end
@@ -265,17 +265,17 @@ describe JsonCrudApi::Query do
 
     it 'should generate correct filter for single default arg' do
       ob = @inst.send(:parse_operation,'one','two')
-      expect(ob).to eq({ :name=>'one', :path => [], :operation=>:equ, :value=>'two'})
+      expect(ob).to eq({ :name=>'one', :path => [], :operation=>:eq, :value=>'two'})
     end
 
     it 'should generate correct filter for default arg with path' do
       ob = @inst.send(:parse_operation,'two.one','three')
-      expect(ob).to eq({ :name=>'one', :path => ['two'], :operation=>:equ, :value=>'three'})
+      expect(ob).to eq({ :name=>'one', :path => ['two'], :operation=>:eq, :value=>'three'})
     end
 
-    it 'should generate correct filter for arg with equ' do
-      ob = @inst.send(:parse_operation,'one|equ','two')
-      expect(ob).to eq({:name=>"one", :path=>[], :value=>"two", :operation=>:equ})
+    it 'should generate correct filter for arg with eq' do
+      ob = @inst.send(:parse_operation,'one|eq','two')
+      expect(ob).to eq({:name=>"one", :path=>[], :value=>"two", :operation=>:eq})
     end
 
     it 'should generate correct filter for arg with other operation (lte)' do
@@ -303,14 +303,14 @@ describe JsonCrudApi::Query do
       expect(ob).to be nil
     end
 
-    it 'should return :equ if operation is "equ"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'equ')
-      expect(ob).to be :equ
+    it 'should return :eq if operation is "eq"' do
+      ob = JsonCrudApi::Query.send(:map_operation,'eq')
+      expect(ob).to be :eq
     end
 
-    it 'should return :neq if operation is "neq"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'neq')
-      expect(ob).to be :neq
+    it 'should return :ne if operation is "ne"' do
+      ob = JsonCrudApi::Query.send(:map_operation,'ne')
+      expect(ob).to be :ne
     end
 
     it 'should return :gt if operation is "gt"' do

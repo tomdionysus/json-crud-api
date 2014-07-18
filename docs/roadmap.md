@@ -10,9 +10,9 @@ The following features should be implemented by version ```0.2.0```.
 Specifying ```<field>[|<operation>]=<value>``` in the query will filter the result set by the appropriate field, operation and value, e.g.
 
     GET /addresses?postcode=6011
-	GET /addresses?postcode|equ=6011
-	GET /addresses?street|equ=Grafton%20Street&postcode|equ=6011
-	GET /addresses?number|lte=15&postcode|equ=6011
+	GET /addresses?postcode|eq=6011
+	GET /addresses?street|eq=Grafton%20Street&postcode|eq=6011
+	GET /addresses?number|lte=15&postcode|eq=6011
 	
 	PUT /addresses?postcode=6011
 	{
@@ -27,8 +27,8 @@ Valid operations are as follows:
 
 | Operation       | Description             |
 |:----------------|:------------------------|
-| equ (default)   | Equals		             |
-| neq             | Does Not Equal          |
+| eq (default)   | Equals		             |
+| ne             | Does Not Equal          |
 | lt              | Less Than	             |
 | gt              | Greater Than            |
 | lte             | Less Than or Equal      |
