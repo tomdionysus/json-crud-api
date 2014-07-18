@@ -2,6 +2,14 @@
 
 The following features should be implemented by version ```0.2.0```.
 
+## json-api conformant responses
+
+Implement [json-api](http://jsonapi.org/) compliant responses:
+
+* Optional ```application/vnd.api+json``` content type
+* Meta information
+* Links information where appropriate
+* Top level response is always an object, entity/entities under collection name as a key.
 
 ## Query Syntax Extensions
 
@@ -9,19 +17,22 @@ The following features should be implemented by version ```0.2.0```.
 
 Specifying ```<field>[.<operation>]=<value>``` in the query will filter the result set by the appropriate field, operation and value, e.g.
 
-		GET /addresses?postcode=6011
-		GET /addresses?postcode.eq=6011
-		GET /addresses?street.eq=Grafton%20Street&postcode.eq=6011
-		GET /addresses?number.lte=15&postcode.eq=6011
+	GET /addresses?postcode=6011
 
-		PUT /addresses?postcode=6011
-		{
-			"postcode": "6002"
-		}
+	GET /addresses?postcode.eq=6011
 
-		DELETE
+	GET /addresses?street.eq=Grafton%20Street&postcode.eq=6011
 
-		GET /addresses?_embed=tenants&person.age.gte=18
+	GET /addresses?number.lte=15&postcode.eq=6011
+
+	PUT /addresses?postcode=6011
+	{
+		"postcode": "6002"
+	}
+
+	DELETE /addresses?city=Palmerston+North
+
+	GET /addresses?_embed=tenants&person.age.gte=18
 	
 Valid operations are as follows:
 
@@ -44,22 +55,26 @@ Two modes are available from an API response:
 #### Include only specific fields
 Adding ```_include=<field_1>,<field_2>,<relation.field_1>...``` in the query will include **only** the specified fields.
 
-		GET /addresses?_include=number,street,postcode,country
+	GET /addresses?_include=number,street,postcode,country
 
-		[
+	{
+		"addresses" : [
 			{ "number":"20", "street":"Cable Street", "postcode":"6011", "New Zealand" },
 			{ "number":"90", "street":"Troy Street", "postcode":"6011", "New Zealand" }
 		]
+	}
 
 #### Exclude specific fields
 Specifying ```_exclude=<field_1>,<field_2>,<relation.field_1>...``` in the query will include **all fields except** the specified fields.
 
-		GET /addresses?_exclude=country
+	GET /addresses?_exclude=country
 
-		[
+	{
+		"addresses" : [
 			{ "id":"2374623", "number":"20", "street":"Cable Street", "city":"Wellington", "postcode":"6011" },
 			{ "id":"5812382", "number":"90", "street":"Troy Street", "city":"Wellington", "postcode":"6011" }
 		]
+	}
 
 ### Related Entities
 
@@ -68,25 +83,28 @@ Relations may be included in one of two ways:
 #### Linked Relations
 Specifying ```_link=<relation_1>,<relation_2>...``` in the query will include the **id**, or list of **id**s of the related entity in the response
 	
-		GET /addresses?_link=tenants,landlord
+	GET /addresses?_link=tenants,landlord
 
-		[
+	{
+		"addresses" : [
 			{ 
 				"id":"2374623", "number":"20", "street":"Cable Street", "city":"Wellington", "postcode":"6011", 
-				"tenants":[5423,2312], "landlord":7241
+				"tenants":[ "5423", "2312" ], "landlord": "7241"
 			},
 			{
 				"id":"5812382", "number":"90", "street":"Troy Street", "city":"Wellington", "postcode":"6011", 
-				"tenants":[6562,1933,8172], "landlord":8182
+				"tenants":[ "6562", "1933", "8172" ], "landlord": "8182"
 			}
 		]
+	}
 
 #### Embedded Relations
 Specifying ```_embed=<relation_1>,<relation_2>...``` in the query will embed the full **object** or list of **objects** in the response.
 
-		GET /addresses?_embed=tenants,landlord
+	GET /addresses?_embed=tenants,landlord
 
-		[
+	{
+		"addresses" : [
 			{ 
 				"id":"2374623", "number":"20", "street":"Cable Street", "city":"Wellington", "postcode":"6011", 
 				"tenants": [
@@ -109,10 +127,12 @@ Specifying ```_embed=<relation_1>,<relation_2>...``` in the query will embed the
 				}
 			}
 		]
+	}
 
-		GET /addresses/5812382?_embed=tenants&tenants.name.like=Whitehall
+	GET /addresses/5812382?_embed=tenants&tenants.name.like=Whitehall
 
-		{
+	{
+		"addresses" : {
 		  	{
 		  	"id":"5812382", "number": "90", "street": "Troy Street", "city": "Wellington", "postcode":"6011", 
 		  	"tenants": [
@@ -122,10 +142,11 @@ Specifying ```_embed=<relation_1>,<relation_2>...``` in the query will embed the
 		    		"id": 8182, "name": "John Smith"
 		  	}
 		}
+	}
 	
 ### Multiple Entity IDs
 
 You can specify multiple IDs on resources by separating the ids with commas:
 
-		GET /addresses/2,3,8,10
+	GET /addresses/2,3,8,10
 	
