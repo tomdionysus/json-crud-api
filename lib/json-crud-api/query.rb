@@ -2,7 +2,10 @@ require 'cgi'
 
 module JsonCrudApi
   class Query
-    attr_accessor :valid, :mode, :arguments, :include_fields, :exclude_fields, :link_relations, :embed_relations, :errors
+
+    VALID_OPERATIONS = [:equ, :neq, :lt, :gt, :lte, :gte, :like, :notlike]
+    
+    attr_accessor :valid, :mode, :arguments, :filters, :include_fields, :exclude_fields, :link_relations, :embed_relations, :errors
 
     def initialize(str)
       @mode = :default
@@ -12,8 +15,13 @@ module JsonCrudApi
       @errors = []
       @link_relations = []
       @embed_relations = []
+      @filters = []
       @valid = true
       parse_from(str)
+    end
+
+    def valid?
+      @valid
     end
 
     def parse_from(str)
@@ -24,12 +32,12 @@ module JsonCrudApi
       @arguments.each do |key, fields|
         case key
         when '_include'
-          @valid &&= set_mode_and_fields(:explicit, fields) do |field| 
+          @valid &&= set_mode_and_fields(:explicit, fields) do |field|
             @include_fields << field
-         end
+          end
 
         when '_exclude'
-          @valid &&= set_mode_and_fields(:implicit, fields) do |field| 
+          @valid &&= set_mode_and_fields(:implicit, fields) do |field|
             @exclude_fields << field
           end
 
@@ -42,11 +50,24 @@ module JsonCrudApi
           set_relations(fields) do |relation|
             @embed_relations << relation
           end
+
+        else
+          set_filters(key, fields) do |filter|
+            @filters << filter
+          end
         end
       end
     end
 
     private
+
+    def set_filters(key, fields_array)
+      fields_array.each do |val|
+        val.split(',').each do |field_path|
+          yield parse_operation(key, field_path)
+        end
+      end
+    end
 
     def set_mode_and_fields(mode, fields_array)
       return add_error(:ambiguous_mode,'Ambiguous mode - do not set both _include and _exclude') if @mode != :default
@@ -65,6 +86,31 @@ module JsonCrudApi
           yield self.class.parse_field(field_path)
         end
       end
+    end
+
+    def parse_operation(specifier, value)
+      ops = specifier.split('|')
+      h = self.class.parse_field(ops[0])
+      h[:value] = value
+
+      if ops.count == 1
+        h[:operation] = :equ
+        return h
+      end
+
+      h[:operation] = self.class.map_operation(ops[1])
+      if h[:operation] == nil
+        add_error(:unknown_operation,'Unknown Operation "'+ops[1]+'"',specifier)
+        return nil
+      end
+      h
+    end
+
+    def self.map_operation(operation_str)
+      return nil if operation_str.nil? or operation_str.empty?
+      operation = operation_str.to_sym
+      return nil unless VALID_OPERATIONS.include? operation
+      operation
     end
 
     def self.parse_field(field_path)
