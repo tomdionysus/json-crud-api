@@ -4,7 +4,7 @@ module JsonCrudApi
   class Query
 
     VALID_OPERATIONS = [:eq, :ne, :lt, :gt, :lte, :gte, :like, :notlike]
-    
+
     attr_accessor :valid, :mode, :arguments, :filters, :include_fields, :exclude_fields, :link_relations, :embed_relations, :errors
 
     def initialize(str)
@@ -89,21 +89,26 @@ module JsonCrudApi
     end
 
     def parse_operation(specifier, value)
-      ops = specifier.split('|')
-      h = self.class.parse_field(ops[0])
-      h[:value] = value
+      paths = specifier.split('.')
 
-      if ops.count == 1
-        h[:operation] = :eq
-        return h
+      if paths.count == 1
+        # Edge case, single field, default EQ
+          return { :name => paths[0], :path => [], :operation => :eq, :value => value }
+      else
+        # Path field. Is the last one an operation?
+        last = paths.pop
+        if self.class.is_operation? last
+          # Yes, so return that.
+          return { :name => paths.pop, :path => paths, :operation => self.class.map_operation(last), :value => value }
+        else
+          # No, assume eq.
+          return { :name => last, :path => paths, :operation => :eq, :value => value }
+        end
       end
+    end
 
-      h[:operation] = self.class.map_operation(ops[1])
-      if h[:operation] == nil
-        add_error(:unknown_operation,'Unknown Operation "'+ops[1]+'"',specifier)
-        return nil
-      end
-      h
+    def self.is_operation?(operation_str)
+      map_operation(operation_str) != nil
     end
 
     def self.map_operation(operation_str)
@@ -115,8 +120,7 @@ module JsonCrudApi
 
     def self.parse_field(field_path)
       paths = field_path.split('.')
-      last = paths.pop
-      { :name => last, :path => paths }
+      { :name => paths.pop, :path => paths }
     end
 
     def add_error(code, message, ref = nil)

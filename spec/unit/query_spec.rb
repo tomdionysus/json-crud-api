@@ -155,7 +155,7 @@ describe JsonCrudApi::Query do
       end
 
       it 'should add a single operation filter' do
-        @inst.parse_from('one|ne=two')
+        @inst.parse_from('one.ne=two')
         expect(@inst.filters).to eq([{:name=>'one',:operation=>:ne,:path=>[],:value=>'two'}])
       end
 
@@ -168,18 +168,12 @@ describe JsonCrudApi::Query do
       end
 
       it 'should add multiple operation filters' do
-        @inst.parse_from('one|ne=two&three|like=four')
+        @inst.parse_from('one.ne=two&three.like=four')
         expect(@inst.filters).to eq([
           {:name=>"one", :path=>[], :value=>"two", :operation=>:ne},
           {:name=>"three", :path=>[], :value=>"four", :operation=>:like}
         ])
       end
-
-      it 'should set valid? false on bad operation' do
-        @inst.parse_from('one|truck=two')
-
-        expect(@inst.valid?).to be false
-        expect(@inst.errors).to eq [{:code=>:unknown_operation, :message=>"Unknown Operation \"truck\"", :ref=>"one|truck"}]      end
     end
   end
 
@@ -274,21 +268,23 @@ describe JsonCrudApi::Query do
     end
 
     it 'should generate correct filter for arg with eq' do
-      ob = @inst.send(:parse_operation,'one|eq','two')
+      ob = @inst.send(:parse_operation,'one.eq','two')
       expect(ob).to eq({:name=>"one", :path=>[], :value=>"two", :operation=>:eq})
     end
 
     it 'should generate correct filter for arg with other operation (lte)' do
-      ob = @inst.send(:parse_operation,'one|lte','two')
+      ob = @inst.send(:parse_operation,'one.lte','two')
       expect(ob).to eq({:name=>"one", :path=>[], :value=>"two", :operation=>:lte})
     end
+  end
 
-    it 'should return nil, set valid? false and add error if operation is unknown' do
-      ob = @inst.send(:parse_operation,'one|truck','two')
-      expect(ob).to be nil
+  describe '#is_operation?' do
+    it 'should call map_operation and return boolean result != nil' do
+      expect(JsonCrudApi::Query).to receive(:map_operation).with(nil).and_return(nil)
+      expect(JsonCrudApi::Query.send(:is_operation?,nil)).to be false
 
-      expect(@inst.valid?).to be false
-      expect(@inst.errors).to eq [{:code=>:unknown_operation, :message=>"Unknown Operation \"truck\"", :ref=>"one|truck"}]
+      expect(JsonCrudApi::Query).to receive(:map_operation).with('equ').and_return(:equ)
+      expect(JsonCrudApi::Query.send(:is_operation?,'equ')).to be true
     end
   end
 
@@ -303,49 +299,11 @@ describe JsonCrudApi::Query do
       expect(ob).to be nil
     end
 
-    it 'should return :eq if operation is "eq"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'eq')
-      expect(ob).to be :eq
-    end
-
-    it 'should return :ne if operation is "ne"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'ne')
-      expect(ob).to be :ne
-    end
-
-    it 'should return :gt if operation is "gt"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'gt')
-      expect(ob).to be :gt
-    end
-
-    it 'should return :lt if operation is "lt"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'lt')
-      expect(ob).to be :lt
-    end
-
-    it 'should return :gte if operation is "gte"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'gte')
-      expect(ob).to be :gte
-    end
-
-    it 'should return :lte if operation is "lte"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'lte')
-      expect(ob).to be :lte
-    end
-
-    it 'should return :like if operation is "like"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'like')
-      expect(ob).to be :like
-    end
-
-    it 'should return :notlike if operation is "notlike"' do
-      ob = JsonCrudApi::Query.send(:map_operation,'notlike')
-      expect(ob).to be :notlike
-    end
-
-    it 'should return nil if operation is unknwon' do
-      ob = JsonCrudApi::Query.send(:map_operation,'bad_operation')
-      expect(ob).to be nil
+    it 'should return correct symbols for valid operations' do
+      JsonCrudApi::Query::VALID_OPERATIONS.each do |op|
+        ob = JsonCrudApi::Query.send(:map_operation,op.to_s)
+        expect(ob).to be op
+      end
     end
   end
 
