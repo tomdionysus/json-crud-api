@@ -7,12 +7,12 @@ The following features should be implemented by version ```0.2.0```.
 
 ### Filtering
 
-Specifying ```<field>[.<operation>]=<value>``` in the query will filter the result set by the appropriate field, operation and value, e.g.
+Specifying ```<field>[|<operation>]=<value>``` in the query will filter the result set by the appropriate field, operation and value, e.g.
 
     GET /addresses?postcode=6011
-	GET /addresses?postcode.equ=6011
-	GET /addresses?street.equ=Grafton%20Street&postcode.equ=6011
-	GET /addresses?number.lte=15&postcode.equ=6011
+	GET /addresses?postcode|equ=6011
+	GET /addresses?street|equ=Grafton%20Street&postcode|equ=6011
+	GET /addresses?number|lte=15&postcode|equ=6011
 	
 	PUT /addresses?postcode=6011
 	{
@@ -33,8 +33,6 @@ Valid operations are as follows:
 | gt              | Greater Than            |
 | lte             | Less Than or Equal      |
 | gte             | Greater Than or Equals  |
-| null            | Is Null                 |
-| notnull         | Is Not Null             |
 | like            | Is Like                 |
 | notlike         | Is Not Like             |
 
@@ -125,14 +123,9 @@ Specifying ```_embed=<relation_1>,<relation_2>...``` in the query will embed the
     	}
   	}
 	
-### Multiple Entity IDs, ID ranges
+### Multiple Entity IDs
 
-You can specify multiple IDs or ranges of IDs on resources by separating the ids with commas, or adding the range specifier:
+You can specify multiple IDs on resources by separating the ids with commas:
 
 	GET /addresses/2,3,8,10
-	GET /addresses/[10..20]?postcode=6011&
-	
-These can be combined:
-
-	GET /addresses/2,5,[33-37]
 	
